@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Home | Premier Student Accommodation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
+    <nav class="bg-white shadow-sm px-6 py-2 flex justify-between items-center sticky top-0 z-50 border-b border-gray-100">
+        <div class="flex items-center cursor-pointer overflow-hidden" 
+        style="height: 50px; width: 180px;" 
+        onclick="switchMainView('explorer')">
+        
+       <img src="logo.jpeg" 
+            onerror="this.onerror=null; this.src='/logo.jpeg';" 
+            alt="Students Home" 
+            class="w-full h-full object-contain scale-[1.7] translate-x-[-5px]">
+   </div>
+        <div class="space-x-4 hidden md:flex items-center" id="navAuthGroup">
+            <span id="roleBadge" class="hidden bg-sky-50 text-sky-700 font-black text-[10px] px-2.5 py-1 rounded-md uppercase tracking-wider border border-sky-100">Student Mode</span>
+            <button id="navBookingsBtn" onclick="switchMainView('bookings')" class="hidden text-slate-600 hover:text-sky-500 font-black text-sm px-4 py-2 transition">My Bookings</button>
+            <button id="navLandlordBtn" onclick="switchMainView('landlord')" class="hidden text-slate-600 hover:text-purple-600 font-black text-sm px-4 py-2 transition">Landlord Studio</button>
+            <a href="#" onclick="toggleModal('listModal'); return false;" class="font-bold text-slate-600 hover:text-sky-500 transition mr-2">List Property</a>
+            
+            <div class="flex items-center gap-4">
+                <button id="navLoginBtn" onclick="openAuthModal('login')" class="bg-transparent text-slate-800 font-black py-2 px-4 hover:text-sky-500 transition text-sm cursor-pointer">Login</button>
+                <button id="navRegisterBtn" onclick="openAuthModal('signup')" class="bg-slate-900 text-white font-black py-3 px-6 rounded-2xl hover:bg-sky-500 transition text-sm shadow-sm cursor-pointer">Register</button>
+                <button id="navLogoutBtn" onclick="handleLogout()" class="hidden bg-gray-100 text-slate-800 font-black py-3 px-6 rounded-2xl hover:bg-sky-500 hover:text-white transition text-sm cursor-pointer">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section id="exploreHeaderSection" class="bg-slate-900 pt-28 pb-28 px-4 text-center text-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none"><i class="fas fa-graduation-cap text-[20rem] absolute -bottom-20 -left-20"></i></div>
+        <div class="relative z-10">
+            <h2 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Find your space near Campus</h2>
+            <p class="mb-10 text-slate-300 text-xl font-medium">Fully managed PGs with food, high-speed Wi-Fi, and top security.</p>
+            <div class="max-w-3xl mx-auto bg-white p-2.5 rounded-2xl md:rounded-full flex flex-col md:flex-row shadow-2xl">
+                <div class="flex-grow flex items-center px-6 py-2">
+                    <i class="fas fa-search text-slate-400 mr-3 text-lg"></i>
+                    <input type="text" id="searchInput" placeholder="Search by University or City..." class="w-full text-slate-800 outline-none text-lg font-medium bg-transparent">
+                </div>
+                <button id="searchBtn" class="bg-sky-500 text-white px-12 py-4 rounded-xl md:rounded-full font-black text-lg hover:bg-amber-500 transition-all duration-300 shadow-lg shadow-sky-100">Search Spaces</button>
+            </div>
+        </div>
+    </section>
+
+    <main id="catalogGridSection" class="container mx-auto -mt-12 mb-20 px-4 relative z-20 flex-grow">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+            <div>
+                <h3 class="text-3xl font-black text-slate-900" id="resultTitle">Top Verified Spaces</h3>
+                <p class="text-slate-500 font-bold mt-1" id="countLabel">Scanning campus perimeters...</p>
+            </div>
+            <div class="flex gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 items-center">
+                <select id="sortSelect" class="bg-gray-100 px-4 py-2 rounded-xl font-bold text-sm text-slate-800 border-none outline-none cursor-pointer transition hover:bg-gray-200">
+                    <option value="popular">Sort: Popular</option>
+                    <option value="low">Price: Low to High</option>
+                    <option value="high">Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="shimmerLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div class="bg-white rounded-[2rem] overflow-hidden p-4 space-y-5 shadow-md border border-gray-100 animate-pulse">
+                <div class="bg-gray-200 rounded-2xl aspect-[4/3]"></div>
+                <div class="space-y-3 px-2 pb-2">
+                    <div class="h-6 bg-gray-200 rounded-md w-3/4"></div>
+                    <div class="h-4 bg-gray-200 rounded-md w-1/2"></div>
+                    <div class="h-10 bg-gray-200 rounded-xl w-full mt-4"></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-[2rem] overflow-hidden p-4 space-y-5 shadow-md border border-gray-100 animate-pulse hidden md:block">
+                <div class="bg-gray-200 rounded-2xl aspect-[4/3]"></div>
+                <div class="space-y-3 px-2 pb-2">
+                    <div class="h-6 bg-gray-200 rounded-md w-2/3"></div>
+                    <div class="h-4 bg-gray-200 rounded-md w-1/3"></div>
+                    <div class="h-10 bg-gray-200 rounded-xl w-full mt-4"></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-[2rem] overflow-hidden p-4 space-y-5 shadow-md border border-gray-100 animate-pulse hidden lg:block">
+                <div class="bg-gray-200 rounded-2xl aspect-[4/3]"></div>
+                <div class="space-y-3 px-2 pb-2">
+                    <div class="h-6 bg-gray-200 rounded-md w-5/6"></div>
+                    <div class="h-4 bg-gray-200 rounded-md w-1/2"></div>
+                    <div class="h-10 bg-gray-200 rounded-xl w-full mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pgContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 hidden"></div>
+    </main>
+
+    <main id="bookingsSection" class="hidden container mx-auto max-w-7xl px-4 py-12 flex-col flex-grow">
+        <div class="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
+            <div>
+                <h3 class="text-3xl font-black text-slate-900">Your Secured <span class="text-sky-500">Bookings</span></h3>
+                <p class="text-slate-500 text-sm font-bold mt-1">Leave feedback values and verify dynamic room allocations</p>
+            </div>
+            <button onclick="switchMainView('explorer')" class="bg-slate-900 text-white font-black py-2.5 px-6 rounded-xl hover:bg-sky-500 transition text-xs uppercase tracking-wider">Back to Explorer</button>
+        </div>
+        <div id="bookingsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </main>
+
+    <main id="landlordSection" class="hidden container mx-auto max-w-7xl px-4 py-12 flex-col flex-grow">
+        <div class="flex justify-between items-center mb-8 border-b border-purple-200 pb-4">
+            <div>
+                <h3 class="text-3xl font-black text-purple-950">Landlord <span class="text-purple-600">Studio Matrix</span></h3>
+                <p class="text-purple-400 text-sm font-bold mt-1">Live administrative analytics tracking asset conversions</p>
+            </div>
+            <button onclick="switchMainView('explorer')" class="bg-purple-900 text-white font-black py-2.5 px-6 rounded-xl hover:bg-purple-600 transition text-xs uppercase tracking-wider">Back to Explorer</button>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-wider block mb-1">Total Fluid Earnings</span>
+                <h4 id="llEarnMetric" class="text-3xl font-black text-purple-600">₹0</h4>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-wider block mb-1">Active Space Reservations</span>
+                <h4 id="llCountMetric" class="text-3xl font-black text-purple-950">0 Rooms</h4>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                <span class="text-xs font-black text-slate-400 uppercase tracking-wider block mb-1">System Operational Integrity</span>
+                <h4 class="text-3xl font-black text-emerald-500">100%</h4>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 font-black text-xs text-slate-400 uppercase tracking-wider">Incoming Reservations Queue</div>
+            <div class="overflow-x-auto"><table class="w-full text-left border-collapse text-sm text-slate-700" id="llTable"></table></div>
+        </div>
+    </main>
+
+    <div id="regModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 md:p-10 relative shadow-2xl">
+            <button onclick="toggleModal('regModal')" class="absolute top-6 right-6 text-slate-300 hover:text-sky-500 transition text-xl"><i class="fas fa-times-circle"></i></button>
+            <div class="text-center mb-6">
+                <div class="bg-sky-50 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-user-graduate text-sky-500 text-xl"></i></div>
+                <h2 id="modalTitle" class="text-3xl font-black text-slate-800">Welcome <span class="text-sky-500">Back</span></h2>
+                <p id="modalSubtitle" class="text-slate-500 font-bold mt-1 text-xs tracking-wide uppercase">Access your account configuration parameters</p>
+            </div>
+            <form id="studentForm" class="space-y-4">
+                <div id="nameFieldContainer" class="hidden">
+                    <input type="text" id="authName" placeholder="Full Name" class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition">
+                </div>
+                <div><input type="email" id="authEmail" placeholder="Email Address" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <div><input type="password" id="authPassword" placeholder="Password" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Select Access Profile</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center justify-center p-3 bg-gray-50 rounded-xl font-bold text-xs text-slate-700 cursor-pointer border border-transparent has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 transition"><input type="radio" name="authRole" value="student" checked class="hidden"> Student Portal</label>
+                        <label class="flex items-center justify-center p-3 bg-gray-50 rounded-xl font-bold text-xs text-purple-700 cursor-pointer border border-transparent has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 transition"><input type="radio" name="authRole" value="landlord" class="hidden"> Landlord Board</label>
+                    </div>
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full bg-sky-500 text-white py-4 mt-2 rounded-2xl font-black text-lg hover:bg-slate-900 transition-all shadow-xl shadow-sky-100">Sign In Engine</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="listModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 md:p-10 relative shadow-2xl">
+            <button onclick="toggleModal('listModal')" class="absolute top-6 right-6 text-slate-300 hover:text-sky-500 transition text-xl"><i class="fas fa-times-circle"></i></button>
+            <div class="text-center mb-6">
+                <div class="bg-sky-50 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-plus-circle text-sky-500 text-xl"></i></div>
+                <h2 class="text-3xl font-black text-slate-800">List Your <span class="text-sky-500">Space</span></h2>
+                <p class="text-slate-500 font-bold mt-1 text-xs tracking-wide uppercase">Add a new property to catalog</p>
+            </div>
+            <form id="propertyForm" class="space-y-4">
+                <div><input type="text" id="propName" placeholder="Property Name" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <div><input type="text" id="propLocation" placeholder="Location" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <div><input type="number" id="propPrice" placeholder="Monthly Rent (₹)" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <div><input type="number" id="propRating" placeholder="Rating" min="1" max="5" step="0.1" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <div><input type="url" id="propImage" placeholder="Image URL" class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold focus:bg-white focus:border-sky-100 transition"></div>
+                <button type="submit" class="w-full bg-sky-500 text-white py-4 mt-2 rounded-2xl font-black text-lg hover:bg-slate-900 transition-all shadow-xl shadow-sky-100">Add Property Live</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="bookingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 md:p-10 relative shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll">
+            <button onclick="toggleModal('bookingModal')" class="absolute top-6 right-6 text-slate-300 hover:text-sky-500 transition text-xl"><i class="fas fa-times-circle"></i></button>
+            <div class="text-center mb-6">
+                <div class="bg-sky-50 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-file-invoice-dollar text-sky-500 text-xl"></i></div>
+                <h2 class="text-3xl font-black text-slate-800">Confirm <span class="text-sky-500">Booking</span></h2>
+                <p class="text-slate-500 font-bold mt-1 text-xs tracking-wide uppercase">Review your housing summary invoice</p>
+            </div>
+            <div class="flex gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6">
+                <img id="bookModalImage" src="" alt="PG Preview" class="w-20 h-20 object-cover rounded-xl shadow-sm">
+                <div class="flex flex-col justify-center">
+                    <h4 id="bookModalName" class="font-black text-slate-800 text-lg">---</h4>
+                    <p id="bookModalLocation" class="text-slate-400 font-bold text-xs uppercase mt-0.5">📍 ---</p>
+                </div>
+            </div>
+            <form id="finalBookingForm" class="space-y-5">
+                <input type="hidden" id="bookModalPropertyId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Move-in Date</label>
+                        <input type="date" id="bookMoveInDate" required class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold text-slate-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Stay Duration</label>
+                        <select id="bookDuration" class="w-full p-4 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold text-slate-700 text-sm cursor-pointer">
+                            <option value="3-months">3 Months</option>
+                            <option value="6-months" selected>6 Months</option>
+                            <option value="12-months">1 Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Food Preference</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex items-center justify-center p-3 bg-gray-50 rounded-xl font-bold text-sm text-slate-700 cursor-pointer border border-transparent has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 transition"><input type="radio" name="foodPref" value="veg" checked class="hidden"> Veg</label>
+                        <label class="flex items-center justify-center p-3 bg-gray-50 rounded-xl font-bold text-sm text-slate-700 cursor-pointer border border-transparent has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 transition"><input type="radio" name="foodPref" value="non-veg" class="hidden"> Non-Veg</label>
+                        <label class="flex items-center justify-center p-3 bg-gray-50 rounded-xl font-bold text-sm text-slate-700 cursor-pointer border border-transparent has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50 transition"><input type="radio" name="foodPref" value="none" class="hidden"> No Food</label>
+                    </div>
+                </div>
+                <div class="bg-slate-950 text-slate-400 p-6 rounded-[2rem] space-y-3 font-medium text-sm">
+                    <div class="flex justify-between"><span>Monthly Rent</span><span class="text-white font-bold" id="invoiceRent">₹0</span></div>
+                    <div class="flex justify-between"><span>Security Deposit</span><span class="text-white font-bold" id="invoiceDeposit">₹0</span></div>
+                    <div class="pt-3 border-t border-slate-800 flex justify-between items-baseline"><span class="font-bold text-white uppercase text-xs tracking-wider">Total Initial Due</span><span class="text-2xl font-black text-amber-500" id="invoiceTotal">₹0</span></div>
+                </div>
+                <button type="submit" class="w-full bg-amber-500 text-slate-950 py-4 mt-2 rounded-2xl font-black text-lg hover:bg-sky-500 hover:text-white transition-all duration-300 shadow-xl uppercase tracking-wide">Confirm & Secure Space</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-slate-50 border-t border-gray-200 py-10 mt-16">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="text-slate-600 font-bold mb-6">Let's connect!</p>
+            
+            <div class="flex justify-center gap-8">
+                <a href="https://www.instagram.com/students.home.official/" target="_blank" class="text-slate-500 hover:text-pink-600 transition-colors text-3xl">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/ayush-kumar-05930a410/" target="_blank" class="text-slate-500 hover:text-blue-700 transition-colors text-3xl">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+            
+            <p class="text-slate-400 text-sm mt-8">© 2026 StudentHome. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
